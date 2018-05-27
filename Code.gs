@@ -35,6 +35,7 @@ function getInfo(str){
     var lines = info.split(/\r\n|\r|\n/);
     var statusRegex = /(OPEN|CLOSED|ARREST)/;
     var timeRegex = /\d+:\d+ \D+/;
+    //Accounting for weird formatting of the PDF
     if(lines.length == 2){
       incident.location = lines[0];
       incident.status = lines[1].match(statusRegex)[0].trim();
@@ -47,12 +48,19 @@ function getInfo(str){
       incident.status = lines[2].match(statusRegex)[0].trim();
       incident.time = lines[2].match(timeRegex)[0].trim();
     }
+    else if(lines.length == 4){
+      incident.type = lines[1].trim();
+      incident.location = lines[2].trim();
+      incident.status = lines[3].match(statusRegex)[0].trim();
+      incident.time = lines[3].match(timeRegex)[0].trim();
+    }
     else{
       incident.type = "ERROR";
       incident.location = "ERROR";
       incident.status = "ERROR";
       incident.time = "ERROR";
     }
+    //Accounting for regex problems
     if(incident.location && incident.location[0] == "/"){
       incident.location = incident.location.substring(4).trim(); 
     }
@@ -74,12 +82,12 @@ function getAreas(str){
 
 function IncidentToArr(incident, date){
   return [Utilities.formatDate(date, "EST", "MM-dd-yyyy"), date.getDay(), incident.time, incident.type, incident.status, 
-            incident.location, incident.area, incident.description];
+            incident.location, incident.area.replace(/(AM | PM)/, ""), incident.description];
 }
 
 function scrape(date){
   var year = (date.getYear() - 2000).toString();
-  var month = (date.getMonth()).toString();
+  var month = (date.getMonth() + 1).toString();
   if(month.length < 2){
     month = "0" + month;
   }
@@ -93,12 +101,9 @@ function scrape(date){
   var incidents = getInfo(pdfText);
   var descriptions = getDescriptions(pdfText);
   var areas = getAreas(pdfText);
-  Logger.log(incidents.length);
-  Logger.log(areas.length);
-  Logger.log(descriptions.length);
   if(incidents.length == areas.length){
     for(var i = 0; i < incidents.length; i++){
-      incidents[i].area = areas[i];
+      incidents[i].area = areas[i].match(/(AM |PM |\n)(ALLSTON|CAMBRIDGE|BOSTON)/)[0];
     }
   }
   if(incidents.length == descriptions.length){
@@ -106,7 +111,7 @@ function scrape(date){
       incidents[i].description = descriptions[i];
     }
   }
-  
+  Logger.log(pdfText);
   var spreadsheet = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/1AMbEglG18BDz4-mQgTfAl4-jiT2Th_tKyIjwBEMDWF8/edit#gid=0");
   var sheet = spreadsheet.getSheets()[0];
   var newRows = incidents.map(function(elt){ return IncidentToArr (elt, date);});
@@ -120,5 +125,17 @@ function scrape(date){
 }
 
 function main(){
-  scrape(new Date(2018, 05, 08));
+  try{
+    var date = new Date();
+    date.setDate(date.getDate() - 1);
+    scrape(date);
+  }
+  catch(e){
+    if(e.message.indexOf("Truncated server response") >= 0){
+      console.log(e);
+    }
+    else{
+      throw e;
+    }
+  }
 }
