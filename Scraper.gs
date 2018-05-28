@@ -184,6 +184,7 @@ function main(){
   }
 }
 
+//Properly formats the spreadsheet by trimming whitespace
 function cleanup(){
   var spreadsheet = getSpreadsheet();
   var sheet = spreadsheet.getSheets()[0];
