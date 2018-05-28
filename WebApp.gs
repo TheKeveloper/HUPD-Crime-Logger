@@ -4,7 +4,6 @@ function getIncidents(){
   var sheet = spreadsheet.getSheets()[0];
   var range = sheet.getRange(2, 1, 1000, 10);
   var values = range.getValues();
-  Logger.log(values);
   return JSON.stringify(values);
 }
 
