@@ -107,6 +107,7 @@ function IncidentToArr(incident, date){
 }
 
 function scrape(date){
+  //Get correctly formatted string for url
   var year = (date.getYear() - 2000).toString();
   var month = (date.getMonth() + 1).toString();
   if(month.length < 2){
@@ -122,6 +123,7 @@ function scrape(date){
   var incidents = getInfo(pdfText);
   var descriptions = getDescriptions(pdfText);
   var areas = getAreas(pdfText);
+  //Do final cleanup of the text
   if(incidents.length == areas.length){
     for(var i = 0; i < incidents.length; i++){
       incidents[i].area = areas[i].match(/(AM |PM |\n)(ALLSTON|CAMBRIDGE|BOSTON)/)[0];
@@ -133,7 +135,7 @@ function scrape(date){
     }
   }
   getGeo(incidents);
-  Logger.log(pdfText);
+  //Add to spreadsheet
   var spreadsheet = getSpreadsheet(); 
   var sheet = spreadsheet.getSheets()[0];
   var newRows = incidents.map(function(elt){ return IncidentToArr (elt, date);});
