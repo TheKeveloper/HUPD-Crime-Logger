@@ -2,10 +2,48 @@
 <html>
   <head>
     <base target="_top">
+    <style>
+      #map{
+        height: 90%;
+      }
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
   </head>
   <body>
-    
+    <h1>Harvard Crime Map</h1>
+    <div id = "map">Loading map...</div>
   </body>
+  <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCT2dC3J-0KpV6kMcm96JDf7JAHwKxgEQc"></script>
+  <script>
+      var incidents = null;
+      function onLoaded(data){
+         incidents = JSON.parse(data);
+         var maps = new google.maps.Map(document.getElementById("map"),{
+           center: {lat: 42.374256, lng: -71.116293},
+           zoom: 12
+         });
+         var markers = [];
+         for (var i = 0; i < incidents.length && incidents[i][0].length > 0; i++){
+           var incident = incidents[i];
+           markers.push(new google.maps.Marker({
+             position: {lat: incident[8], lng: incident[9]},
+           }));
+         }
+         
+         var markerCluster = new MarkerClusterer(maps, markers,
+            {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+      }
+      google.script.run.withSuccessHandler(onLoaded).getIncidents();
+      
+      function initMap(){
+        
+      }
+    </script>
 </html>
 
 
