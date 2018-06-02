@@ -169,18 +169,20 @@ function geocodeExisting(){
 }
 
 function main(){
-  try{
-    var date = new Date();
-    date.setDate(date.getDate() - 1);
-    scrape(date);
-  }
-  catch(e){
-    if(e.message.indexOf("Truncated server response") >= 0){
+  var spreadsheet = getSpreadsheet();
+  var values = spreadsheet.getSheets()[0].getRange("A:A").getValues();
+  var lastDate = new Date(values[1][0]);
+  lastDate.setDate(lastDate.getDate() + 1); 
+  var curDate = new Date();
+  curDate.setDate(curDate.getDate() - 1);
+  while(lastDate <= curDate){
+    try{
+      scrape(lastDate);
+    }
+    catch(e){
       console.log(e);
     }
-    else{
-      throw e;
-    }
+    lastDate.setDate(lastDate.getDate() + 1);
   }
 }
 
