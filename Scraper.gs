@@ -73,6 +73,7 @@ function getInfo(str){
     if(incident.type && incident.type[0] == "/"){
       incident.type = incident.type.substring(4).trim();
     }
+    incident.type = incident.type.replace(/(OPEN|CLOSED|ARREST) \d+:\d+ (AM|PM)/gm, "");
     incidents.push(incident);
   });
   return incidents;
@@ -193,6 +194,7 @@ function cleanup(){
   var range = sheet.getRange("D:H");
   var values = range.getValues();
   values = values.map(function(arr){
+    arr[0] = arr[0].replace(/(OPEN|CLOSED|ARREST) \d+:\d+ (AM|PM)/gm, "").replace("PM ", "");
     return arr.map(function(str){
       return str.trim();
     });
