@@ -13,20 +13,19 @@
         margin: 0;
         padding: 0;
       }
-      
       .UserOptions{
-        visibility: hidden;
+        display: none;
       }
     </style>
   </head>
   <body>
     <h1>Harvard Crime Map</h1>
-    <h3 id = "lblLastReport" class = "UserOptions" >Last report: </h1>
+    <h3 id = "lblLastReport" class = "UserOptions">Last report: </h1>
     <div id = "dayButtons" class = "UserOptions">
-      <input type = "radio" name = "time" class = "UserOptions" id = "radioAll" checked = "checked">All time (since 4/1/2018)</input>
-      <input type = "radio" name = "time" class = "UserOptions" id = "radioOne">1 Day</input>
-      <input type = "radio" name = "time" class = "UserOptions" id = "radioWeek">1 Week</input>
-      <input type = "radio" name = "time" class = "UserOptions" id = "radioMonth">1 Month</input>
+      <input type = "radio" name = "time" id = "radioAll" checked = "checked" onclick = "populateMap(-1)">All time (since 4/1/2018)</input>
+      <input type = "radio" name = "time" id = "radioOne" onclick = "populateMap(1)">1 Day</input>
+      <input type = "radio" name = "time" id = "radioWeek" onclick = "populateMap(7)">7 Days</input>
+      <input type = "radio" name = "time"  id = "radioMonth" onclick = "populateMap(30)">30 Days</input>
     </div>
     <div id = "map">Loading map...</div>
   </body>
@@ -36,6 +35,8 @@
       var incidents = null;
       var markers = [];
       var markerClusterer = null;
+      var map = null;
+      var lastDate = null;
       //From: https://stackoverflow.com/questions/4933050/google-maps-infowindow-not-opening-on-click-event
       function addInfoWindow(marker, content) {
         var infoWindow = new google.maps.InfoWindow({
@@ -46,26 +47,59 @@
             infoWindow.open(map, marker);
         });
       }
-      function onLoaded(data){
-         incidents = JSON.parse(data);
-         var maps = new google.maps.Map(document.getElementById("map"),{
+      
+      function clearMap(){
+        markers.forEach(function(marker){
+          marker.setMap(null);
+        });
+        markers = [];
+        if(markerClusterer){
+          markerClusterer.setMap(null);
+        }
+      }
+      
+      function populateMap(daysBack){
+         clearMap(); 
+         map = new google.maps.Map(document.getElementById("map"),{
            center: {lat: 42.374256, lng: -71.116293},
            zoom: 12
          });
+         var endDate = null;
+         if(daysBack < 0){
+           endDate = new Date(2018, 1, 1);
+         }
+         else{
+           endDate = new Date(lastDate.getFullYear(), lastDate.getMonth(), lastDate.getDate());
+           endDate.setDate(endDate.getDate() - daysBack);
+         }
          for (var i = 0; i < incidents.length && incidents[i][0].length > 0; i++){
            var incident = incidents[i];
+           var date = new Date(incident[0]);
+           if(date <= endDate){
+              break;
+           }
+           var time = new Date(incident[2]);
            var marker = new google.maps.Marker({
              position: {lat: incident[8], lng: incident[9]}
            });
-           var date = new Date(incident[0]);
-           var time = new Date(incident[2]);
            addInfoWindow(marker, date.toLocaleDateString("en-US") + "<br/>" + 
            time.toLocaleTimeString("en-US") + "<br/>" + incident[3]);
            markers.push(marker);
          }
          
-         markerCluster = new MarkerClusterer(maps, markers,
+         markerCluster = new MarkerClusterer(map, markers,
             {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+      }
+      
+      function onLoaded(data){
+         incidents = JSON.parse(data);
+         lastDate = new Date(incidents[0][0]);
+         document.getElementById("lblLastReport").innerHTML = "Last Report: " + lastDate.toLocaleDateString("en-US");
+         document.querySelectorAll(".UserOptions").forEach(function(elt){
+           elt.style.display = "block";
+         });
+         
+         populateMap(-1);
       }
       google.script.run.withSuccessHandler(onLoaded).getIncidents();
       

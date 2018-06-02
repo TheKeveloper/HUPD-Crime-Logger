@@ -89,7 +89,7 @@ function getAreas(str){
 function getGeo(incidents){
   try {
     incidents.forEach(function(incident){
-      var response = Maps.newGeocoder().setBounds(42.310021, -71.122081, 42.382741, -70.993858).geocode(incident);
+      var response = Maps.newGeocoder().setBounds(42.310021, -71.122081, 42.382741, -70.993858).geocode(incident.location + " " + incident.area);
       if (response.results.length > 0){
         incident.lat = response.results[0].geometry.location.lat;
         incident.long = response.results[0].geometry.location.lng
@@ -153,8 +153,8 @@ function geocodeExisting(){
   var sheet = spreadsheet.getSheets()[0];
   var values = sheet.getRange("F:G").getValues();
   var coords = [];
-  const start = 280; 
-  const end = 305;
+  const start = 6; 
+  const end = 43;
   for(var i = start; i <= end; i++){
     var response = Maps.newGeocoder().setBounds(42.310021, -71.122081, 42.382741, -70.993858).geocode(values[i][0] + " " + values[i][1]);
     if(response.results.length > 0){
@@ -199,5 +199,7 @@ function cleanup(){
 }
 
 function test(){
-  scrape(new Date(2018, 03, 10));
+  for(var i = 25; i <= 31; i++){
+    scrape(new Date(2018, 04, i));
+  }
 }
