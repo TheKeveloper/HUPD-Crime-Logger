@@ -8,19 +8,34 @@
       }
       html, body {
         height: 100%;
+        margin-left: 10px;
+        margin-right: 10px;
         margin: 0;
         padding: 0;
+      }
+      
+      .UserOptions{
+        visibility: hidden;
       }
     </style>
   </head>
   <body>
     <h1>Harvard Crime Map</h1>
+    <h3 id = "lblLastReport" class = "UserOptions" >Last report: </h1>
+    <div id = "dayButtons" class = "UserOptions">
+      <input type = "radio" name = "time" class = "UserOptions" id = "radioAll" checked = "checked">All time (since 4/1/2018)</input>
+      <input type = "radio" name = "time" class = "UserOptions" id = "radioOne">1 Day</input>
+      <input type = "radio" name = "time" class = "UserOptions" id = "radioWeek">1 Week</input>
+      <input type = "radio" name = "time" class = "UserOptions" id = "radioMonth">1 Month</input>
+    </div>
     <div id = "map">Loading map...</div>
   </body>
   <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCT2dC3J-0KpV6kMcm96JDf7JAHwKxgEQc"></script>
   <script>
       var incidents = null;
+      var markers = [];
+      var markerClusterer = null;
       //From: https://stackoverflow.com/questions/4933050/google-maps-infowindow-not-opening-on-click-event
       function addInfoWindow(marker, content) {
         var infoWindow = new google.maps.InfoWindow({
@@ -37,7 +52,6 @@
            center: {lat: 42.374256, lng: -71.116293},
            zoom: 12
          });
-         var markers = [];
          for (var i = 0; i < incidents.length && incidents[i][0].length > 0; i++){
            var incident = incidents[i];
            var marker = new google.maps.Marker({
@@ -50,14 +64,11 @@
            markers.push(marker);
          }
          
-         var markerCluster = new MarkerClusterer(maps, markers,
+         markerCluster = new MarkerClusterer(maps, markers,
             {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
       }
       google.script.run.withSuccessHandler(onLoaded).getIncidents();
       
-      function initMap(){
-        
-      }
     </script>
 </html>
 
