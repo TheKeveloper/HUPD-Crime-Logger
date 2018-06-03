@@ -32,7 +32,7 @@ function Incident(){
 }
 
 function getInfo(str){
-  //Gets time and place address info
+  // Gets time and place address info
   var infoRegex = /\D+[0-9\-]+\D+(OPEN|CLOSED|ARREST) \d+:\d+ (AM|PM)/gm;
   var infos = str.match(infoRegex);
   var incidents = [];
@@ -41,7 +41,7 @@ function getInfo(str){
     var lines = info.split(/\r\n|\r|\n/);
     var statusRegex = /(OPEN|CLOSED|ARREST)/;
     var timeRegex = /\d+:\d+ \D+/;
-    //Accounting for weird formatting of the PDF
+    // Accounting for weird formatting of the PDF
     if(lines.length == 2){
       incident.location = lines[0];
       incident.status = lines[1].match(statusRegex)[0].trim();
@@ -66,7 +66,7 @@ function getInfo(str){
       incident.status = "ERROR";
       incident.time = "ERROR";
     }
-    //Accounting for regex problems
+    // Cleaning up in case of weird regex problems
     if(incident.location && incident.location[0] == "/"){
       incident.location = incident.location.substring(4).trim(); 
     }
@@ -79,14 +79,17 @@ function getInfo(str){
   return incidents;
 }
 
+// Get the description strings for all incidents
 function getDescriptions(str){
   return str.match(/(Officer|Officers) .+/g);
 }
 
+// Return areas as list
 function getAreas(str){
   return str.match(/(AM |PM |\n)(ALLSTON|CAMBRIDGE|BOSTON)/g);
 }
 
+// Associate a list of incidents with the geolocations
 function getGeo(incidents){
   try {
     incidents.forEach(function(incident){
@@ -102,13 +105,14 @@ function getGeo(incidents){
   }
 }
 
+// Convert an incident object to an array for adding to spreadsheet
 function IncidentToArr(incident, date){
   return [Utilities.formatDate(date, "EST", "MM-dd-yyyy"), date.getDay(), incident.time, incident.type.trim(), incident.status.trim(), 
             incident.location.trim(), incident.area.replace(/(AM | PM)/, "").trim(), incident.description.trim(), incident.lat, incident.long];
 }
 
 function scrape(date){
-  //Get correctly formatted string for url
+  // Get correctly formatted date for url
   var year = (date.getYear() - 2000).toString();
   var month = (date.getMonth() + 1).toString();
   if(month.length < 2){
@@ -136,7 +140,7 @@ function scrape(date){
     }
   }
   getGeo(incidents);
-  //Add to spreadsheet
+  // Add to spreadsheet
   var spreadsheet = getSpreadsheet(); 
   var sheet = spreadsheet.getSheets()[0];
   var newRows = incidents.map(function(elt){ return IncidentToArr (elt, date);});
@@ -149,6 +153,7 @@ function scrape(date){
   console.log(logString);
 }
 
+// Geocode the existing incidents in the spreadsheet
 function geocodeExisting(){
   var spreadsheet = getSpreadsheet();
   var sheet = spreadsheet.getSheets()[0];
@@ -169,6 +174,8 @@ function geocodeExisting(){
   sheet.getRange(start + 1, 9, coords.length, 2).setValues(coords);
 }
 
+// Scrapes from last report date to the current date
+// Runs once every day
 function main(){
   var spreadsheet = getSpreadsheet();
   var values = spreadsheet.getSheets()[0].getRange("A:A").getValues();
@@ -187,7 +194,7 @@ function main(){
   }
 }
 
-//Properly formats the spreadsheet by trimming whitespace
+// Properly formats the spreadsheet by trimming whitespace
 function cleanup(){
   var spreadsheet = getSpreadsheet();
   var sheet = spreadsheet.getSheets()[0];
@@ -202,6 +209,7 @@ function cleanup(){
   range.setValues(values);
 }
 
+// Test function for miscellaneous work
 function test(){
   for(var i = 25; i <= 31; i++){
     scrape(new Date(2018, 04, i));
