@@ -5,4 +5,5 @@ Google Spreadsheet: https://docs.google.com/spreadsheets/d/1AMbEglG18BDz4-mQgTfA
 
 
 Crime map: https://script.google.com/macros/s/AKfycbwSTLC72QyVAdVLAFgYrz850Xn4kjSfFnMCJ3PCJtTlMd3RM7va/exec
+
 The crime map has since been implemented natively on the Harvard Open Data Project website and can be found here: http://hodp.org/visual/crime
