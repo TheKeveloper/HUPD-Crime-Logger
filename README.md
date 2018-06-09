@@ -3,4 +3,6 @@ A Google Apps Script for aggregating incidents from the HUPD crime log at https:
 
 Google Spreadsheet: https://docs.google.com/spreadsheets/d/1AMbEglG18BDz4-mQgTfAl4-jiT2Th_tKyIjwBEMDWF8/edit?usp=sharing
 
+
 Crime map: https://script.google.com/macros/s/AKfycbwSTLC72QyVAdVLAFgYrz850Xn4kjSfFnMCJ3PCJtTlMd3RM7va/exec
+The crime map has since been implemented natively on the Harvard Open Data Project website and can be found here: http://hodp.org/visual/crime
